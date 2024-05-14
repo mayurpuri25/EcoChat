@@ -4,13 +4,16 @@ import CreateGroupDialog from '../components/CreateGroupDialog';
 import Sidebar from '../components/Sidebar'
 import Chat from '../components/Chat'     
 import NoChat from '../components/No_chat';
-import {useSelector } from 'react-redux';
+import {useSelector, useDispatch } from 'react-redux';
+import { setCurrentUserName } from '../actions';
+
    
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(null);
   const [createGroupVisible, setCreateGroupVisible] = useState(false);
   const groupName = useSelector((state) => state.groupName);
+  const dispatch = useDispatch();
 
 
   useEffect(() => {
@@ -25,6 +28,7 @@ const Dashboard = () => {
           }
         });
         const data = await response.json();
+        dispatch(setCurrentUserName(data.username));
         setUserData(data); // Set user data
       } catch (error) {
         console.error(error);

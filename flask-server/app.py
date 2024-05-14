@@ -12,6 +12,7 @@ from PIL import Image, ImageOps
 import numpy as np
 import tensorflow as tf
 from keras import models
+import re
 
 model = models.load_model("model/CNN/keras_model.h5", compile=False) # Load the model
 class_names = open("model/CNN/labels.txt", "r").readlines() # Load the labels
@@ -29,9 +30,15 @@ if os.path.exists('.env'):
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+app.config['UPLOAD_PROFILE'] = './profile'
+if not os.path.exists(app.config['UPLOAD_PROFILE']):
+    os.makedirs(app.config['UPLOAD_PROFILE'])
+
 app.config['UPLOAD_FOLDER'] = './uploads'
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+
 db = SQLAlchemy(app)
 
 # socketio = SocketIO(app, cors_allowed_origins="*")  # Add this line to enable CORS for SocketIO
@@ -44,6 +51,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
+    profile_image = db.Column(db.Text)  # Storing image filename
+
 
 # group's Table
 class Groups(db.Model, UserMixin):
@@ -96,6 +105,15 @@ def login():
     data = request.json
     username = data['username']
     password = data['password']
+
+     # Check if username and password are not empty
+    if not username:
+        response = {'success': False, 'message': 'Username is required'}
+        return jsonify(response), 401
+    
+    if not password:
+        response = {'success': False, 'message': 'password is required'}
+        return jsonify(response), 401
     
     user = User.query.filter_by(username=username).first()
     if user:
@@ -103,7 +121,7 @@ def login():
             # Authentication successful
             sessionID = user.id  
             # Here you might want to store the sessionID in your database or cache for later verification
-            response = {'success': True, 'sessionID': sessionID}
+            response = {'success': True, 'sessionID': sessionID, 'photoURL': search_userimage(user.id)}
             return jsonify(response), 200
         else:
             # Authentication failed
@@ -115,26 +133,74 @@ def login():
         return jsonify(response), 401
 
 # Register Route
-@app.route("/register", methods=['GET', 'POST'])
+@app.route("/register", methods=['POST'])
 def register():
     data = request.json
-    username = data['username']
-    email =  data['email']
-    password = data['password']
+    username = data.get('username')
+    email =  data.get('email')
+    password = data.get('password')
+    filename = data.get('image_profile')  # Get the filename
 
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        hashed_password = bcrypt.generate_password_hash(password)
-        new_user = User(username=username, email=email, password_hash=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        response = {'success': True}
-        return jsonify(response), 200
-    else:
-        # Registration failed
-        response = {'success': False, 'message': 'Invalid username or password'}
+    # Check if username, email, and password are not empty
+    if not username:
+        response = {'success': False, 'message': 'Username is required'}
         return jsonify(response), 401
+    
+    if not email:
+        response = {'success': False, 'message': 'email is required'}
+        return jsonify(response), 401
+    
+    if not password:
+        response = {'success': False, 'message': 'password is required'}
+        return jsonify(response), 401
+
+    # Validate username and password length
+    if not 5 <= len(username) <= 20 or not 5 <= len(password) <= 20:
+        response = {'success': False, 'message': 'Username and password must be between 5 and 20 characters long'}
+        return jsonify(response), 401
+
+    # Validate username and password complexity
+    if not re.match(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$', password):
+        response = {'success': False, 'message': 'Password must include at least 1 uppercase alphabet, 1 lowercase alphabet, 1 numeric value, and 1 special character'}
+        return jsonify(response), 401
+
+    # Check if username and email are unique
+    if User.query.filter_by(username=username).first():
+        response = {'success': False, 'message': 'Username already exists'}
+        return jsonify(response), 401
+
+    if User.query.filter_by(email=email).first():
+        response = {'success': False, 'message': 'Email already exists'}
+        return jsonify(response), 401
+
+    # Registration successful
+    hashed_password = bcrypt.generate_password_hash(password)
+    new_user = User(username=username, email=email, password_hash=hashed_password, profile_image=None if not filename else f"http://127.0.0.1:5000/uploads/{filename}")
+    db.session.add(new_user)
+    db.session.commit()
+    response = {'success': True, 'message':'ACCOUNT CREATED!'}
+    return jsonify(response), 200
+
+# Route to upload images
+@app.route('/upload_profile_image', methods=['POST'])
+def upload_profile_image():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': 'No selected file'}), 400
+    
+    # Save the uploaded image
+    filename = secure_filename(file.filename)
+    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    return jsonify({'success': True, 'filename': filename}), 200
+    
+# # Function to save the profile image
+# def save_profile_image(profile_image):
+#     filename = secure_filename(profile_image.filename)  # Get a secure filename
+#     filepath = os.path.join("./profile", filename)  # Generate filepath
+#     profile_image.save(filepath)  # Save the image to the filepath
+#     return filename  # Return only the filename
 
 # Create New Group Route
 @app.route("/create_group", methods=['GET', 'POST'])
@@ -144,8 +210,11 @@ def create_group():
     members = data.get('members')
     admin_id = request.headers.get('Authorization').split()[1]
 
-    if not data or not data.get("groupName") or not data.get("members"):
-        response = {'success': False, "message":"Missing required fields"}
+    if not groupname:
+        response = {'success': False, "message":"Group name is required"}
+        return jsonify(response), 400
+    if not members:
+        response = {'success': False, "message":"Atleast one member is required"}
         return jsonify(response), 400
     else:
         # creating new group entry in a DB
@@ -276,6 +345,7 @@ def send_text():
                 'text': new_message.message_text,
                 'timestamp': new_message.timestamp.isoformat(),
                 'sender_username': search_username(new_message.sender_ID),
+                'photoURL': search_userimage(new_message.sender_ID),
                 'image_url': new_message.message_image  # Send the image URL in the response
             }
         }}
@@ -342,13 +412,15 @@ def get_messages():
         response = {'success': True, 'messages': []}
         for message in messages:
             sender_username = search_username(message.sender_ID) 
+            sender_profileImg = search_userimage(message.sender_ID) 
             msg = {
                 'message_ID': message.message_ID,
                 'sender_ID': message.sender_ID,
                 'group_ID': message.group_ID,
                 'text': message.message_text,
                 'timestamp': message.timestamp.isoformat(),  # Convert timestamp to ISO format
-                'sender_username': sender_username
+                'sender_username': sender_username,
+                'photoURL': sender_profileImg,
             }
 
              # Check if the message has an image
@@ -367,11 +439,22 @@ def get_messages():
 def get_image(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# function to search user using userID
+# function to return username using userID
 def search_username(id): 
     user = User.query.filter_by(id=id).first()
     if user:
         return user.username
+    else:
+        # No user found
+        return 0
+    
+# function to return profile url using userID
+def search_userimage(id): 
+    user = User.query.filter_by(id=id).first()
+    if user:
+        if not user.profile_image:
+                return "http://127.0.0.1:5000/uploads/blank.png"
+        return user.profile_image
     else:
         # No user found
         return 0

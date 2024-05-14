@@ -8,6 +8,7 @@ import { setGroupID } from '../actions';
 
 const Chats = () => {
   const [userData, setUserData] = useState(null);
+  const [fetchData, setFetchData] = useState(true); // State to trigger data fetch
   const navigate = useNavigate(); // Initialize useHistory
   const dispatch = useDispatch();
 
@@ -39,7 +40,10 @@ const Chats = () => {
       }
     };
 
-    fetchUserData();
+    if (fetchData) {
+      fetchUserData();
+      setFetchData(false); // Reset fetch data flag
+    }
   }, [dispatch]);
 
   return (

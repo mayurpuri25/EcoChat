@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import BotMessage from "./BotMessage";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Button } from "primereact/button";
@@ -7,6 +7,7 @@ const EcoBotChat = () => {
   const messagesEndRef = useRef(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [inputText, setInputText] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
   // API key setup
@@ -17,30 +18,21 @@ const EcoBotChat = () => {
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const handleSend = async () => {
-    // const chat = model.startChat({
-    //     history: chatHistory,
-    //     generationConfig: {
-    //       maxOutputTokens: 100,
-    //     },
-    //   });
-    // const result = await chat.sendMessage(inputText);
-    // const response = await result.response;
-    // const text = await response.text();
-    // const history = await chat.getHistory();
-    // setChatHistory(history)
-    // console.log("HISTORY", chatHistory);
-    // console.log("TEXT", text);
-
-    
-    
-    const result = await model.generateContent(inputText);
-    const response = await result.response;
-    const text = response.text();
-    const msgContentInput = { role: "user", parts: [{ text: inputText }] };
-    const msgContentOutput = { role: "model", parts: [{ text: text }] };
-    const contents = [...chatHistory, msgContentInput, msgContentOutput];
-    setChatHistory(contents);
-    setInputText('')
+    setLoading(true);
+    try{
+      const result = await model.generateContent(inputText);
+      const response = await result.response;
+      const text = response.text();
+      const msgContentInput = { role: "user", parts: [{ text: inputText }] };
+      const msgContentOutput = { role: "model", parts: [{ text: text }] };
+      const contents = [...chatHistory, msgContentInput, msgContentOutput];
+      setChatHistory(contents);
+      setInputText('')
+    }catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,9 +63,13 @@ const EcoBotChat = () => {
           placeholder="Type something..."
           onChange={(e) => setInputText(e.target.value)}
           value={inputText}
+          disabled={loading}
         />
         <div className="send">
-          <Button onClick={handleSend} label="Send" icon="pi pi-send" />
+          {loading && <span><i className="pi pi-spin pi-spinner" style={{ fontSize: '1.5rem',  color: '#708090' }}></i></span>}
+          <Button onClick={handleSend}
+           label="Send" 
+           icon="pi pi-send" disabled={loading}/>
         </div>
       </div>
     </div>

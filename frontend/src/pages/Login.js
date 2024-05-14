@@ -1,17 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {Link } from 'react-router-dom';
-import { setCurrentUserID } from '../actions';
+import { setCurrentUserID, setCurrentUserImage } from '../actions';
 import { useDispatch} from 'react-redux';
+import { Toast } from 'primereact/toast';
 
 
 
 const Login = () => {
+  const toast = useRef(null);
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
   });
 
+    
+  const showError = (msg) => {
+    toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
+  }
+  
   const handleChange = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -30,19 +37,25 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('sessionID', data.sessionID); // Save session ID
         dispatch(setCurrentUserID(data.sessionID));
+        // console.log('URLLL',data.photoURL);
+        localStorage.setItem('userImageURL', data.photoURL); // Save session ID
+        // dispatch(setCurrentUserImage(data.photoURL));
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
-        console.error(data.message); // Handle login error
+        showError(data.message);
+        // console.error(data.message); // Handle login error
       }
     } catch (error) {
-      console.error(error); // Handle network error
+      showError(error);
+      // console.error(error); // Handle network error
     }
   };
   
 
   return (
     <div >
+      <Toast ref={toast} />
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
         <input type="text" name="username" placeholder="Username" onChange={handleChange} />

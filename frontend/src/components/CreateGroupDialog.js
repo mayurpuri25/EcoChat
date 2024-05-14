@@ -1,13 +1,23 @@
-import React, { useState} from "react";
+import React, { useState, useRef} from "react";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
+import { Toast } from 'primereact/toast';
 
 
 const CreateGroupDialog = ({ visible, onHide }) => {
+  const toast = useRef(null);
   const [groupName, setGroupName] = useState("");
   const [searchedUser, setSearchedUser] = useState("");
   const [members, setMembers] = useState(new Set()); // Using Set for efficient uniqueness
+
+  const showError = (msg) => {
+    toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
+  }
+
+  const showSuccess = (msg) => {
+    toast.current.show({severity:'success', summary: 'Success', detail:msg, life: 3000});
+  }
 
   const handleRemoveMember = (memberToRemove) => {
     const updatedMembers = new Set([...members].filter((member) => member !== memberToRemove));
@@ -35,12 +45,14 @@ const CreateGroupDialog = ({ visible, onHide }) => {
         body: JSON.stringify({"groupName":groupName, "members":membersArray }),
       });
       const data = await response.json();
-      if (data.success)
-        console.log(data); // Handle response from the backend as needed
+      if (data.success){
+        showSuccess(data.message);
+        window.location.reload(); // Refresh the page
+      }
       else
-        console.error(data.message);
+        showError(data.message);
     } catch (error) {
-      console.error("Error submitting form:", error);
+      showError(error);
     }
     setMembers(new Set()); // Clear the added members after the form submission
     setGroupName(""); // Clear the group name after the form submission
@@ -62,13 +74,16 @@ const CreateGroupDialog = ({ visible, onHide }) => {
         if (!members.has(searchedUser) && (data.id != sessionID)) {
           setMembers(new Set([...members, searchedUser])); // Add only if unique
         } else {
-          console.log("Username already exists or invalid");
+          showError("Username already exists or invalid");
+          // console.log("Username already exists or invalid");
         }
       } else {
-        console.error(data.message); // Handle login error
+        showError(data.message);
+        // console.error(data.message); // Handle login error
       }
     } catch (error) {
-      console.error("error",error); // Handle network error
+      showError(error);
+      // console.error("error",error); // Handle network error
     }
     setSearchedUser(""); // Clear the search input after adding the user
   };
@@ -80,6 +95,7 @@ const CreateGroupDialog = ({ visible, onHide }) => {
       style={{ backgroundColor: "var(--primary-color)", width: "50vw" }}
       onHide={handleHide} 
     >
+     <Toast ref={toast} />
       <form onSubmit={handleSubmit} className="p-fluid">
         <div className="p-inputgroup flex-1">
           <span className="p-inputgroup-addon">

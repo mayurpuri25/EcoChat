@@ -1,12 +1,17 @@
 import React, { useState, useRef } from "react";
 import { Button } from "primereact/button";
 import { useSelector } from 'react-redux';
+import { Toast } from 'primereact/toast';
+
 
 const Input = () => {
+  const toast = useRef(null);
   const [text, setText] = useState("");
   const [file, setFile] = useState(null);
   const inputRef = useRef(null);
   const groupID = useSelector((state) => state.groupID);
+  const [loading, setLoading] = useState(false); // State for loading button
+
 
   function formatDate(timestamp) {
     const date = new Date(timestamp);
@@ -28,6 +33,13 @@ const Input = () => {
     inputRef.current.value = null;
   };
 
+  const showWarn = (msg) => {
+    toast.current.show({severity:'warn', summary: 'Warning', detail:msg, life: 3000});
+  }
+  const showInfo = () => {
+    toast.current.show({severity:'info', summary: 'Info', detail:'Send Image Only Related To Environment.', life: 5000});
+  }
+
   const handleSend = async () => {
     const timestamp = formatDate(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }).replace(/,/g, ''));
     const senderID = localStorage.getItem('sessionID'); // sender ID
@@ -37,14 +49,7 @@ const Input = () => {
       return;
     }
 
-    // const formData = new FormData();
-    // formData.append("text", text);
-    // formData.append("timestamp", timestamp);
-    // formData.append("senderID", senderID);
-    // formData.append("groupID", groupID);
-    // if (file) {
-    //   formData.append("file", file);
-    // }
+    setLoading(true); // Set loading to true before sending
 
     try {
       let filename = null;
@@ -58,9 +63,12 @@ const Input = () => {
         });
         const uploadData = await uploadResponse.json();
         if (!uploadData.success) {
-          console.error("ERROR:", uploadData.message);
+          showWarn(uploadData.message);
+          showInfo();
+          // console.error("ERROR:", uploadData.message);
           setText(""); // Clear input field after sending
           setFile(null); // Clear file input
+          setLoading(false); // Set loading to false after handling response
           return;
         }
         filename = uploadData.filename;
@@ -90,11 +98,14 @@ const Input = () => {
       }
     } catch (error) {
       console.error(error);
+    } finally {
+        setLoading(false); // Set loading to false after sending
     }
   };
 
   return (
     <div className="input">
+      <Toast ref={toast} />
       <input
         type="text"
         placeholder="Type something..."
@@ -119,7 +130,8 @@ const Input = () => {
             style={{ display: 'none' }}
           />
         </label>
-        <Button onClick={handleSend} label="Send" icon="pi pi-send" />
+        {loading && <span><i className="pi pi-spin pi-spinner" style={{ fontSize: '1.5rem',  color: '#708090' }}></i></span>}
+        <Button onClick={handleSend} label="Send" icon="pi pi-send" disabled={loading}/>
       </div>
     </div>
   );

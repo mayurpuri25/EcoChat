@@ -4,7 +4,15 @@ const Message = ({ message }) => {
   const sessionID = localStorage.getItem("sessionID");
   const ref = useRef();
 
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
+
   useEffect(() => {
+    console.log(message);
+
     const scrollToBottom = () => {
       ref.current.scrollIntoView({ behavior: "smooth", block: "end" });
     };
@@ -21,14 +29,10 @@ const Message = ({ message }) => {
     >
       <div className="messageInfo">
         <img
-          //   src={
-          //     message.senderId === currentUser.uid
-          //       ? currentUser.photoURL
-          //       : data.user.photoURL
-          //   }
+          src={message.photoURL}
           alt=""
         />
-        <span>{message.sender_username}</span>
+        <span>{message.sender_ID == sessionID? "you ":message.sender_username}</span>
       </div>
       <div className="messageContent">
         {message.image_url && (
@@ -38,7 +42,7 @@ const Message = ({ message }) => {
           />
         )}
         {message.text && <p>{message.text}</p>}
-        {/* <div className="timestamp">{message.timestamp}</div> */}
+        <div className="timestamp">{formatTime(message.timestamp)}</div>
       </div>
     </div>
   );

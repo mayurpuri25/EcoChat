@@ -1,11 +1,12 @@
 // src/reducers/index.js
 import { createReducer } from '@reduxjs/toolkit';
-import { setGroupName, setGroupID, setCurrentUserID } from '../actions';
+import { setGroupName, setGroupID, setCurrentUserID, setCurrentUserName } from '../actions';
 
 const initialState = {
   groupName: '',
   groupID: '',
   currentUserID: '',
+  currentUserName: '',
 };
 
 const reducer = createReducer(initialState, (builder) => {
@@ -18,6 +19,9 @@ const reducer = createReducer(initialState, (builder) => {
     })
     .addCase(setCurrentUserID, (state, action) => {
       state.currentUserID = action.payload;
+    })
+    .addCase(setCurrentUserName, (state, action) => {
+      state.currentUserName = action.payload;
     });
 });
 
