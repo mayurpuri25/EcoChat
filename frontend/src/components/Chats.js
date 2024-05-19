@@ -9,6 +9,7 @@ import { setGroupID } from '../actions';
 const Chats = () => {
   const [userData, setUserData] = useState(null);
   const [fetchData, setFetchData] = useState(true); // State to trigger data fetch
+  const [selectedGroup, setSelectedGroup] = useState(null); // State to keep track of selected group
   const navigate = useNavigate(); // Initialize useHistory
   const dispatch = useDispatch();
 
@@ -16,6 +17,7 @@ const Chats = () => {
     navigate(`?param=${key}`); // Navigate to a dynamic route with group ID as parameter
     dispatch(setGroupName(name));
     dispatch(setGroupID(key));
+    setSelectedGroup(key); // Set selected group
   };
 
   useEffect(() => {
@@ -49,7 +51,8 @@ const Chats = () => {
   return (
     <div className="chats">
       <div
-          className="userChat"
+          // className="userChat"
+          className={`userChat ${selectedGroup === 111 ? 'selected' : ''}`}
           onClick={() => handleSelect(111, "EcoBot")}
         >
           <i className="pi pi-reddit" style={{ fontSize: '2.0rem' }}> </i>
@@ -59,7 +62,8 @@ const Chats = () => {
         </div>
       {userData && userData.groups.map(group => (
         <div
-          className="userChat"
+          // className="userChat"
+          className={`userChat ${selectedGroup === group.group_ID ? 'selected' : ''}`}
           key={group.group_ID}
           onClick={() => handleSelect(group.group_ID, group.group_name)}
         >

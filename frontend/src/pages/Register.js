@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Toast } from 'primereact/toast';
+import { Toast } from "primereact/toast";
+import "./Register.css"; // Import your CSS file
 
 const Register = () => {
   const toast = useRef(null);
@@ -12,14 +13,23 @@ const Register = () => {
     password: "",
   });
 
-  
   const showError = (msg) => {
-    toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
-  }
+    toast.current.show({
+      severity: "error",
+      summary: "Error",
+      detail: msg,
+      life: 3000,
+    });
+  };
 
   const showSuccess = (msg) => {
-    toast.current.show({severity:'success', summary: 'Success', detail:msg, life: 3000});
-  }
+    toast.current.show({
+      severity: "success",
+      summary: "Success",
+      detail: msg,
+      life: 3000,
+    });
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formsData, [e.target.name]: e.target.value });
@@ -129,55 +139,62 @@ const Register = () => {
   // };
 
   return (
-    <div>
+    <div className="mainregister-container">
       <Toast ref={toast} />
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-        />
-        <label htmlFor="file">
-          <i
-            className="pi pi-user"
-            style={{ fontSize: "1.5rem", color: "#708090", cursor: "pointer" }}
-          ></i>
-          <span>Add an avatar</span>
+
+      <div className="register-container">
+        <h1 className="register-header">Register</h1>
+        <form className="register-form" onSubmit={handleSubmit}>
           <input
-            id="file"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            ref={inputRef}
-            style={{ display: "none" }}
+            type="text"
+            name="username"
+            placeholder="Username"
+            className="input-field"
+            onChange={handleChange}
           />
-        </label>
-        {file && (
-          <div
-            className="file-info"
-            style={{ display: "contents", backgroundColor: "#708090" }}
-          >
-            <span>{file.name}</span>
-            <i onClick={handleFileDelete} className="pi pi-times-circle"></i>
-          </div>
-        )}
-        <button type="submit">Register</button>
-      </form>
-      <Link to="/login">Already Have An Account? Log In</Link>
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            className="input-field"
+            onChange={handleChange}
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            className="input-field"
+            onChange={handleChange}
+          />
+          <label htmlFor="file" className="add-avatar-label">
+            <i className="pi pi-user add-avatar-icon"></i>
+            <span>Add an avatar</span>
+            <input
+              id="file"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              ref={inputRef}
+              className="file-input"
+            />
+          </label>
+          {file && (
+            <div className="file-info-container">
+              <span className="file-info">{file.name}</span>
+              <i
+                className="pi pi-times-circle delete-file-icon"
+                onClick={handleFileDelete}
+              ></i>
+            </div>
+          )}
+          <button type="submit" className="submit-button">
+            Register
+          </button>
+        </form>
+        <Link to="/login" className="login-link">
+          Already Have An Account? Log In
+        </Link>
+      </div>
     </div>
   );
 };

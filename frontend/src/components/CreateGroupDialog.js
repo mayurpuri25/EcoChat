@@ -144,7 +144,7 @@ const CreateGroupDialog = ({ visible, onHide }) => {
           </ul>
         </div>
       )}
-        <Button label="Create Group" type="submit" icon="mt-2" />
+        <Button style={{width:'initial'}} label="Create Group" type="submit" icon="mt-2" />
       </form>
     </Dialog>
   );

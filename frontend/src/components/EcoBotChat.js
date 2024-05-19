@@ -10,6 +10,7 @@ const EcoBotChat = () => {
   const [loading, setLoading] = useState(false);
 
 
+
   // API key setup
   const API_KEY = "AIzaSyB0dmVIWZ5raZtTD230bCO2Da-j-PW2s8o";
   const genAI = new GoogleGenerativeAI(API_KEY);
@@ -23,6 +24,7 @@ const EcoBotChat = () => {
       const result = await model.generateContent(inputText);
       const response = await result.response;
       const text = response.text();
+      // const markdownText = marked.marked(text); // Convert to Markdown
       const msgContentInput = { role: "user", parts: [{ text: inputText }] };
       const msgContentOutput = { role: "model", parts: [{ text: text }] };
       const contents = [...chatHistory, msgContentInput, msgContentOutput];
@@ -32,6 +34,12 @@ const EcoBotChat = () => {
       console.error("Error sending message:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
     }
   };
 
@@ -64,6 +72,8 @@ const EcoBotChat = () => {
           onChange={(e) => setInputText(e.target.value)}
           value={inputText}
           disabled={loading}
+          onKeyPress={handleKeyPress}
+
         />
         <div className="send">
           {loading && <span><i className="pi pi-spin pi-spinner" style={{ fontSize: '1.5rem',  color: '#708090' }}></i></span>}

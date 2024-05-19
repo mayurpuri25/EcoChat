@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-// import {useSelector } from 'react-redux';
+import ReactMarkdown from "react-markdown";
 
 
 const BotMessage = ({ message }) => {
@@ -39,7 +39,7 @@ const BotMessage = ({ message }) => {
         <span>{message.role === "user" ? "You" : "EcoBot"}</span>
       </div>
       <div className="messageContent">
-        {loading ? <p>Loading...</p> : text && <p>{text}</p>}
+        {loading ? <p>Loading...</p> :  <p><ReactMarkdown>{text}</ReactMarkdown></p>}
       </div>
     </div>
   );

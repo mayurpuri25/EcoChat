@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "primereact/button";
 import CreateGroupDialog from "../components/CreateGroupDialog";
-import {useSelector } from 'react-redux';
-
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [createGroupVisible, setCreateGroupVisible] = useState(false);
@@ -17,10 +16,18 @@ const Navbar = () => {
 
   return (
     <div className="navbar">
-      <span className="logo">Messages</span>
+      <span className="logo" style={{ fontSize: "larger" }}>
+        Chats
+      </span>
       <div className="user">
+        <div className="display_user">
+          <img src={photoURL} alt="" />
+          <span >{userName}</span>
+        </div>
         <Button
-          // label="Create Group"
+          placeholder="Bottom"
+          tooltip="Create Group"
+          tooltipOptions={{ position: "bottom" }}
           icon="pi pi-pen-to-square"
           onClick={() => setCreateGroupVisible(true)}
         />
@@ -28,9 +35,13 @@ const Navbar = () => {
           visible={createGroupVisible}
           onHide={() => setCreateGroupVisible(false)}
         />
-        <img src={photoURL} alt="" />
-        <span>{userName}</span>
-        <Button label="" icon="pi pi-sign-out" onClick={handleLogout} />
+        <Button
+          placeholder="Bottom"
+          tooltip="Log Out"
+          tooltipOptions={{ position: "bottom" }}
+          icon="pi pi-sign-out"
+          onClick={handleLogout}
+        />
       </div>
     </div>
   );

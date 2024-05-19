@@ -67,7 +67,7 @@ const Messages = () => {
   return (
     <div className="messages">
       {messages.length === 0 ? (
-        <div className="no-messages">Start the conversation!</div>
+        <div className="no-messages">No conversation yet to display!!</div>
       ) : (
         messages.map((message, index) => (
           <Message key={index} message={message} />

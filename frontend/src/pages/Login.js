@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
-import {Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { setCurrentUserID, setCurrentUserImage } from '../actions';
-import { useDispatch} from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Toast } from 'primereact/toast';
-
-
+import './Login.css'; // Import the CSS file
 
 const Login = () => {
   const toast = useRef(null);
@@ -14,7 +13,6 @@ const Login = () => {
     password: ''
   });
 
-    
   const showError = (msg) => {
     toast.current.show({severity:'error', summary: 'Error', detail:msg, life: 3000});
   }
@@ -37,34 +35,42 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem('sessionID', data.sessionID); // Save session ID
         dispatch(setCurrentUserID(data.sessionID));
-        // console.log('URLLL',data.photoURL);
         localStorage.setItem('userImageURL', data.photoURL); // Save session ID
-        // dispatch(setCurrentUserImage(data.photoURL));
-        // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
         showError(data.message);
-        // console.error(data.message); // Handle login error
       }
     } catch (error) {
       showError(error);
-      // console.error(error); // Handle network error
     }
   };
-  
 
   return (
-    <div >
-      <Toast ref={toast} />
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="username" placeholder="Username" onChange={handleChange} />
-        <input type="password" name="password" placeholder="Password" onChange={handleChange} />
-        <button type="submit">Login</button>
+    <div className="mainlogin-container">
+          <Toast ref={toast} />
+
+    <div className="login-container">
+      <h1 className="login-title">Login</h1>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <input
+          className="login-input"
+          type="text"
+          name="username"
+          placeholder="Username"
+          onChange={handleChange}
+        />
+        <input
+          className="login-input"
+          type="password"
+          name="password"
+          placeholder="Password"
+          onChange={handleChange}
+        />
+        <button className="login-button" type="submit">Login</button>
       </form>
-      <Link to="/register">Don't Have An Account? Sign Up</Link>
-    </div>
+      <Link className="login-link" to="/register">Don't Have An Account? Sign Up</Link>
+    </div></div>
   );
 };
 
-export default Login;
+export default Login;

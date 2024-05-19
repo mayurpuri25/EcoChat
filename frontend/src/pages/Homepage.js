@@ -1,7 +1,9 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import Login from './Login';
-import Register from './Register';
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import Login from "./Login";
+import Register from "./Register";
+import "./Homepage.css";
+// import "./Welcomepage.css";
 
 const Homepage = () => {
   return (
@@ -14,15 +16,23 @@ const Homepage = () => {
       </Routes>
     </BrowserRouter>
   );
-}
+};
 
 function Home() {
   return (
-    <div>
-      <h1>Welcome to My App</h1>
-      <Link to="/login">Login</Link>
-      <br />
-      <Link to="/register">Register</Link>
+    <div className="mainhome-container">
+      <div className="home-container">
+        <h1 className="home-title">Welcome To The EcoChat</h1>
+        <div className="login-reg">
+          <Link to="/login" className="home-link home_login">
+            Login
+          </Link>
+          <br />
+          <Link to="/register" className="home-link home_reg">
+            Register
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

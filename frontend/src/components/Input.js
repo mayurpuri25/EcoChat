@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "primereact/button";
 import { useSelector } from 'react-redux';
 import { Toast } from 'primereact/toast';
+import { Chip } from 'primereact/chip';
 
 
 const Input = () => {
@@ -26,6 +27,7 @@ const Input = () => {
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
+    console.log(e.target.files);
   };
 
   const handleFileDelete = () => {
@@ -103,6 +105,12 @@ const Input = () => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
+    }
+  };
+
   return (
     <div className="input">
       <Toast ref={toast} />
@@ -111,11 +119,13 @@ const Input = () => {
         placeholder="Type something..."
         onChange={(e) => setText(e.target.value)}
         value={text}
+        onKeyPress={handleKeyPress}
       />
       <div className="send">
         {file && (
-            <div className="file-info" style={{display: 'contents', backgroundColor: '#708090'}}>
-              <span>{file.name}</span>
+            <div className="file-info" >
+              {/* <span style={{ fontSize: '12px'}}>{file.name}</span> */}
+              <Chip label="image" icon="pi pi-image"/>
               <i onClick={handleFileDelete} className="pi pi-times-circle"></i>
             </div>
         )}
@@ -131,7 +141,7 @@ const Input = () => {
           />
         </label>
         {loading && <span><i className="pi pi-spin pi-spinner" style={{ fontSize: '1.5rem',  color: '#708090' }}></i></span>}
-        <Button onClick={handleSend} label="Send" icon="pi pi-send" disabled={loading}/>
+        <Button onClick={handleSend} icon="pi pi-send" disabled={loading}/>
       </div>
     </div>
   );
