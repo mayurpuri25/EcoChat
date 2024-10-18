@@ -1,53 +1,6 @@
-COMPONENTS
-
-Frontend Interface:
-● Users can create their profiles by providing necessary details such as
-username, email address, profile image and password.
-● The frontend interface includes form fields for entering user information
-and a submit button to create the profile.
-
-Backend Functionality:
-● User authentication and authorization are implemented to ensure
-secure profile creation.
-● User data is stored in the database (Sqlite) after validation and hashing
-of passwords for security.
-
-CREATE GROUP INTERFACE AND ADD MEMBERS:
-Frontend Interface:
-● Users can create new groups by providing a group name and selecting
-members to add to the group.
-Backend Functionality:
-● The backend validates group creation requests and adds group
-information to the database (sqlite).
-
-CHAT GROUP TO TEXT, SEND IMAGES AND AI CHATBOT:
-Frontend Interface:
-● Users can send text messages, share images, and interact with the AI
-chatbot.
-● The interface includes text input fields, buttons for sending messages
-and images, and a chatbot integration.
-Backend Functionality:
-● Message routes handle text and image messages, storing message
-content, sender and recipient information in the database .
-● Real-time communication (WebSockets) facilitates instant message
-delivery and updates in group chats.
-
-BACKEND IMPLEMENTATION:
-User Authentication and Authorization:
-● Implemented to ensure secure access to EcoChat functionalities.
-Database (Sqlite):
-● Serves as the central repository for EcoChat's data.
-● Stores user data, chat messages, and group information.
-● Provides relational database management for efficient data retrieval
-and storage.
-
-CNN Model Backend:
-● Integrates the Convolutional Neural Network (CNN) model for image
-classification.
-● Handles requests to classify images uploaded by users into relevant
-environmental categories.
-
-Real-time Communication (WebSockets):
-● Enables real-time communication experience in EcoChat.
-● Facilitates instant message delivery and content moderation results.
-● Broadcasts messages to all members of group chats in real-time
+![{83F4457A-CB20-4715-9336-B3733CC97D03}](https://github.com/user-attachments/assets/59712758-113f-4687-a262-ded6e9cfb8b7)
+![{798E46FC-BDD3-4283-BB56-39919339D6AD}](https://github.com/user-attachments/assets/eb4815f4-0dbf-499c-b156-5a34e47bbbdb)
+![{8CA3DF66-FB0C-4631-A250-FE07D9E4FA28}](https://github.com/user-attachments/assets/a99b2679-2990-4090-9f75-99b20abf4cca)
+![{64C74D97-AF2B-40C9-A4BF-AE7866B615C7}](https://github.com/user-attachments/assets/8b9d03e7-d41e-4071-8cae-3e10f866e467)
+![{F98DEF4A-4D9D-4460-AD4F-6EA8833D8C52}](https://github.com/user-attachments/assets/30aa41d6-692e-4e85-ada5-176404b643d6)
+![Uploading {A7A836BF-A136-486A-8FAB-E4B1EDE75A06}.png…]()
